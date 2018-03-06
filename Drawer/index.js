@@ -47,7 +47,8 @@ export default class Drawer extends Component {
     maskAlpha: 0.4,
     customStyles: {},
     startCapture: false,
-    moveCapture: false
+    moveCapture: false,
+    disableGesture: false
   }
   static propTypes = {
     disabled: PropTypes.bool,
@@ -70,7 +71,8 @@ export default class Drawer extends Component {
     startCapture: PropTypes.bool,
     moveCapture: PropTypes.bool,
     easingFunc: PropTypes.func,
-    responderNegotiate: PropTypes.func
+    responderNegotiate: PropTypes.func,
+    disableGesture: PropTypes.bool
   }
   constructor(props) {
     super(props);
@@ -191,17 +193,19 @@ export default class Drawer extends Component {
   _handlePanResponderGrant(evt, gestureState) {
   }
   _handlePanResponderMove (evt, gestureState) {
-    let dx = gestureState.dx;
-    if (dx > 0 && dx <= this.MAX_DX) {
-      // swipe right
-      if (this.isRight && this.isRightOpen) return this._updateNativeStyles(-this.MAX_DX + dx);
-      if (this.isLeft && !this.isLeftOpen) this._updateNativeStyles(dx);
-    } else if (dx < 0 && dx >= -this.MAX_DX) {
-      // swipe left
-      if (this.isLeft && this.isLeftOpen) return this._updateNativeStyles(this.MAX_DX + dx);
-      if (this.isRight && !this.isRightOpen) this._updateNativeStyles(dx);
+    if (!this.props.disableGesture) {
+      let dx = gestureState.dx;
+      if (dx > 0 && dx <= this.MAX_DX) {
+        // swipe right
+        if (this.isRight && this.isRightOpen) return this._updateNativeStyles(-this.MAX_DX + dx);
+        if (this.isLeft && !this.isLeftOpen) this._updateNativeStyles(dx);
+      } else if (dx < 0 && dx >= -this.MAX_DX) {
+        // swipe left
+        if (this.isLeft && this.isLeftOpen) return this._updateNativeStyles(this.MAX_DX + dx);
+        if (this.isRight && !this.isRightOpen) this._updateNativeStyles(dx);
+      }
+      // dx === 0 triggers tap event when drawer is opened.
     }
-    // dx === 0 triggers tap event when drawer is opened.
   }
   _handlePanResponderEnd (evt, gestureState) {
     let currentWidth = Math.abs(this._getCurrentDrawerWidth());
